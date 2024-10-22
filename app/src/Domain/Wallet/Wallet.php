@@ -13,10 +13,13 @@ use App\Domain\Wallet\Events\WalletDebitEvent;
 use App\Domain\Wallet\Events\WalletEventInterface;
 use Money\Currency;
 use Money\Money;
-use Symfony\Component\Uid\Uuid;
 
 class Wallet
 {
+    public const MAXIMUM_DEBIT_PAYMENTS_FOR_DAY = 3;
+
+    public const DEBIT_PAYMENT_FEE = 0.005;
+
     private WalletId $walletId;
 
     private OwnerId $ownerId;
@@ -88,11 +91,11 @@ class Wallet
             throw new ValidationException('Debit for this Payment is not allowed');
         }
 
-        if ($this->countDebitPaymentsFromToday() >= 3) {
+        if ($this->countDebitPaymentsFromToday() >= self::MAXIMUM_DEBIT_PAYMENTS_FOR_DAY) {
             throw new ActionNotAllowedException('Maximum debit payments limit is reached for today');
         }
 
-        $payment->addPercentageTransactionFee(0.005);
+        $payment->addPercentageTransactionFee(self::DEBIT_PAYMENT_FEE);
 
         if (true === $this->balance->add($payment->getTotalAmount())->isNegative()) {
             throw new ActionNotAllowedException('Not enough balance in wallet');
