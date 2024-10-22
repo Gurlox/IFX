@@ -10,6 +10,8 @@ use Money\Money;
 
 class Payment
 {
+    private Money $paymentFee;
+
     public function __construct(
         private PaymentId $paymentId,
         private Money $amount,
@@ -50,6 +52,11 @@ class Payment
         return $this->amount->getCurrency();
     }
 
+    public function getPaymentFee(): Money
+    {
+        return $this->paymentFee;
+    }
+
     public function isPaymentFromToday(): bool
     {
         return (new \DateTimeImmutable())->format('Y-m-d') === $this->date->format('Y-m-d');
@@ -61,9 +68,13 @@ class Payment
             throw new ValidationException('Invalid percentage amount');
         }
 
-        $fee = $this->amount->multiply($percentage);
-        $this->amount = $this->amount->add($fee);
+        $this->paymentFee = $this->amount->multiply($percentage);
 
         return $this;
+    }
+
+    public function getTotalAmount(): Money
+    {
+        return $this->amount->add($this->getPaymentFee());
     }
 }

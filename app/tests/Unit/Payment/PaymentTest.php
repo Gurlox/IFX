@@ -119,14 +119,30 @@ class PaymentTest extends TestCase
         $payment->addPercentageTransactionFee($feePercentage);
 
         // then
-        self::assertEquals($result, (int) $payment->getAmount()->getAmount());
+        self::assertEquals($result, (int) $payment->getPaymentFee()->getAmount());
     }
 
     public static function addPercentageTransactionFeeDataProvider(): \Traversable
     {
-        yield [1000, 0.005, 1005];
-        yield [100, 0.005, 101];
-        yield [1200, 0.1, 1320];
-        yield [10, 0.01, 10];
+        yield [1000, 0.005, 5];
+        yield [100, 0.005, 1];
+        yield [1200, 0.1, 120];
+        yield [10, 0.01, 0];
+    }
+
+    public function testGetTotalAmountShouldGetAmountWithPaymentFee(): void
+    {
+        // given
+        $payment = new Payment(
+            PaymentId::fromString((string) Uuid::v4()),
+            new Money(-1000, new Currency('USD')),
+            new \DateTimeImmutable(),
+        );
+
+        // when
+        $payment->addPercentageTransactionFee(0.005);
+
+        // then
+        self::assertEquals(-1005, (int) $payment->getTotalAmount()->getAmount());
     }
 }

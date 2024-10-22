@@ -94,7 +94,7 @@ class Wallet
 
         $payment->addPercentageTransactionFee(0.005);
 
-        if (true === $this->balance->add($payment->getAmount())->isNegative()) {
+        if (true === $this->balance->add($payment->getTotalAmount())->isNegative()) {
             throw new ActionNotAllowedException('Not enough balance in wallet');
         }
 
@@ -132,7 +132,9 @@ class Wallet
 
     private function onWalletDebit(WalletDebitEvent $event): void
     {
-        $this->balance = $this->balance->add($event->payment->getAmount());
+        $this->balance = $this->balance
+            ->add($event->payment->getAmount())
+            ->add($event->payment->getPaymentFee());
     }
 
     private function record(WalletEventInterface $event): void
