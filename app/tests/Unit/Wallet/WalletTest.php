@@ -12,6 +12,7 @@ use App\Domain\Wallet\Events\WalletCreatedEvent;
 use App\Domain\Wallet\Events\WalletCreditEvent;
 use App\Domain\Wallet\OwnerId;
 use App\Domain\Wallet\Wallet;
+use App\Domain\Wallet\WalletId;
 use Money\Currency;
 use Money\Money;
 use PHPUnit\Framework\TestCase;
@@ -22,8 +23,10 @@ class WalletTest extends TestCase
     public function testCreateShouldAddCreationEvent(): void
     {
         $ownerId = OwnerId::fromString((string) Uuid::v4());
+        $walletId = WalletId::fromString((string) Uuid::v4());
         $currency = new Currency('USD');
         $wallet = new Wallet(
+            $walletId,
             $ownerId,
             $currency,
         );
@@ -32,6 +35,7 @@ class WalletTest extends TestCase
         self::assertInstanceOf(WalletCreatedEvent::class, $wallet->getEvents()->toArray()[0]);
         self::assertEquals(0, $wallet->getBalance()->getAmount());
         self::assertEquals($ownerId, $wallet->getOwnerId());
+        self::assertEquals($walletId, $wallet->getWalletId());
         self::assertEquals($currency, $wallet->getCurrency());
     }
 
@@ -42,6 +46,7 @@ class WalletTest extends TestCase
     {
         // given
         $wallet = new Wallet(
+            WalletId::fromString((string) Uuid::v4()),
             OwnerId::fromString((string) Uuid::v4()),
             new Currency('USD'),
         );
@@ -74,6 +79,7 @@ class WalletTest extends TestCase
         // given
         $currency = new Currency('USD');
         $wallet = new Wallet(
+            WalletId::fromString((string) Uuid::v4()),
             OwnerId::fromString((string) Uuid::v4()),
             $currency,
         );
@@ -107,6 +113,7 @@ class WalletTest extends TestCase
     {
         // given
         $wallet = new Wallet(
+            WalletId::fromString((string) Uuid::v4()),
             OwnerId::fromString((string) Uuid::v4()),
             new Currency('USD'),
         );
@@ -138,6 +145,7 @@ class WalletTest extends TestCase
     {
         // given
         $wallet = new Wallet(
+            WalletId::fromString((string) Uuid::v4()),
             OwnerId::fromString((string) Uuid::v4()),
             new Currency('USD'),
         );
@@ -182,6 +190,7 @@ class WalletTest extends TestCase
     {
         // given
         $wallet = new Wallet(
+            WalletId::fromString((string) Uuid::v4()),
             OwnerId::fromString((string) Uuid::v4()),
             new Currency('USD'),
         );
@@ -208,6 +217,7 @@ class WalletTest extends TestCase
     {
         // given
         $wallet = new Wallet(
+            WalletId::fromString((string) Uuid::v4()),
             OwnerId::fromString((string) Uuid::v4()),
             new Currency('USD'),
         );

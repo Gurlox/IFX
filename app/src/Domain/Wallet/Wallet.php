@@ -25,12 +25,12 @@ class Wallet
 
     private WalletEventsCollection $events;
 
-    public function __construct(OwnerId $ownerId, Currency $currency)
+    public function __construct(WalletId $walletId, OwnerId $ownerId, Currency $currency)
     {
         $this->events = new WalletEventsCollection();
         $this->record(new WalletCreatedEvent(
             $ownerId,
-            WalletId::fromString((string) Uuid::v4()),
+            $walletId,
             $currency,
         ));
     }
