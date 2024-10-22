@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Repository\InMemory;
 
+use App\Application\DTO\WalletDTO;
+use App\Application\Repository\WalletReadRepositoryInterface;
 use App\Domain\Exception\NotFoundException;
 use App\Domain\Repository\WalletEventStoreRepositoryInterface;
 use App\Domain\Wallet\Events\WalletCreatedEvent;
@@ -12,13 +14,13 @@ use App\Domain\Wallet\Events\WalletDebitEvent;
 use App\Domain\Wallet\Wallet;
 use App\Domain\Wallet\WalletId;
 
-class WalletEventStoreInMemoryRepository implements WalletEventStoreRepositoryInterface
+class WalletInMemoryRepository implements WalletEventStoreRepositoryInterface, WalletReadRepositoryInterface
 {
     private array $events = [];
 
     public function save(Wallet $wallet): void
     {
-        $this->events[$wallet->getWalletId()->jsonSerialize()] = $wallet->getEvents();
+        $this->events[$wallet->getWalletId()->jsonSerialize()] = $wallet->getEvents()->toArray();
     }
 
     /**
@@ -53,5 +55,20 @@ class WalletEventStoreInMemoryRepository implements WalletEventStoreRepositoryIn
         }
 
         return $wallet;
+    }
+
+    /**
+     * @throws NotFoundException
+     */
+    public function getViewModel(WalletId $walletId): WalletDTO
+    {
+        $wallet = $this->getById($walletId);
+
+        return new WalletDTO(
+            $wallet->getWalletId(),
+            $wallet->getOwnerId(),
+            (int) $wallet->getBalance()->getAmount(),
+            $wallet->getCurrency(),
+        );
     }
 }
