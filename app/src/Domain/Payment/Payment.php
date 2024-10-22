@@ -20,6 +20,7 @@ class Payment
         if (0 == $this->amount->getAmount()) {
             throw new ValidationException('Amount cannot be 0');
         }
+        $this->paymentFee = new Money(0, $this->amount->getCurrency());
     }
 
     public function getPaymentId(): PaymentId
